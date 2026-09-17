@@ -32,15 +32,18 @@ export async function getUserByOpenId(openId: string) { const db = await getDb()
 export async function getUserByEmail(email: string) { const db = await getDb(); if (!db) return undefined; const result = await db.select().from(users).where(eq(users.email, email)).limit(1); return result[0]; }
 export async function getUserByIdentifier(identifier: string) { const db = await getDb(); if (!db) return undefined; const normalized = identifier.trim().toLowerCase(); const result = await db.select().from(users).where(or(eq(users.email, normalized), eq(users.username, normalized))).limit(1); return result[0]; }
 export async function createLocalUser(values: InsertUser) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.insert(users).values(values); return getUserByOpenId(values.openId); }
+export const DEFAULT_ADMIN_USERNAME = "admin";
+export const DEFAULT_ADMIN_PASSWORD = "Zz123123";
+
 export async function ensureDefaultAdmin() {
   const db = await getDb();
   if (!db) {
     console.warn("[Auth] DATABASE_URL is not configured; default admin was not initialized");
     return null;
   }
-  const username = "admin";
+  const username = DEFAULT_ADMIN_USERNAME;
   const email = "admin@local.test";
-  const password = process.env.DEFAULT_ADMIN_PASSWORD || "Zz123123";
+  const password = DEFAULT_ADMIN_PASSWORD;
   const existing = (await db.select().from(users).where(eq(users.username, username)).limit(1))[0];
   const salt = randomBytes(16).toString("hex");
   const passwordHash = `${salt}:${scryptSync(password, salt, 64).toString("hex")}`;

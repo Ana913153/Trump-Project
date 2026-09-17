@@ -601,3 +601,5 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(16, 189, 119
 .case-catalog-top { padding: 14px 16px 0; }
 
 .home-case-directory { margin: 28px 0 34px; }
+
+.project-action-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 128px; }

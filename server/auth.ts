@@ -6,9 +6,10 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { sdk } from "./_core/sdk";
 
 export const normalizeEmail = (email: string) => email.trim().toLowerCase();
+export const normalizeIdentifier = (identifier: string) => identifier.trim().toLowerCase();
 
 export const localOpenId = (identifier: string) =>
-  createHash("sha256").update(`local:${identifier.trim().toLowerCase()}`).digest("hex");
+  createHash("sha256").update(`local:${normalizeIdentifier(identifier)}`).digest("hex");
 
 export function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
