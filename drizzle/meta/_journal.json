@@ -71,6 +71,13 @@
       "when": 1789675242388,
       "tag": "0009_zippy_songbird",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1789686653827,
+      "tag": "0010_repair_business_schema",
+      "breakpoints": true
     }
   ]
 }
