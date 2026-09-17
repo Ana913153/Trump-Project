@@ -1,0 +1,1 @@
+ALTER TABLE `contentArticles` ADD `catalog` varchar(120);

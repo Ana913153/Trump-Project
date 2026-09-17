@@ -1,0 +1,1 @@
+ALTER TABLE `contentArticles` ADD `placement` varchar(20) DEFAULT 'carousel' NOT NULL;

@@ -1,28 +1,17 @@
 import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
-/**
- * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
- */
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
-  id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
-  openId: varchar("openId", { length: 64 }).notNull().unique(),
-  name: text("name"),
-  email: varchar("email", { length: 320 }),
-  loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
+  id: int("id").autoincrement().primaryKey(), openId: varchar("openId", { length: 64 }).notNull().unique(), name: text("name"), email: varchar("email", { length: 320 }).unique(), username: varchar("username", { length: 64 }).unique(), passwordHash: varchar("passwordHash", { length: 255 }), resetTokenHash: varchar("resetTokenHash", { length: 64 }).unique(), resetTokenExpiresAt: timestamp("resetTokenExpiresAt"), loginMethod: varchar("loginMethod", { length: 64 }), role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(), lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
+export const children = mysqlTable("children", { id: int("id").autoincrement().primaryKey(), userId: int("userId").notNull(), name: varchar("name", { length: 80 }).notNull(), accountType: varchar("accountType", { length: 80 }).default("Child Growth Account").notNull(), targetYears: int("targetYears").default(18).notNull(), annualReturnBps: int("annualReturnBps").default(600).notNull(), balanceOverrideCents: int("balanceOverrideCents"), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull() });
+export const fundingEntries = mysqlTable("fundingEntries", { id: int("id").autoincrement().primaryKey(), childId: int("childId").notNull(), type: mysqlEnum("type", ["treasury", "deposit", "contribution", "withdrawal"]).notNull(), amountCents: int("amountCents").notNull(), currencyCode: varchar("currencyCode", { length: 12 }).default("USD").notNull(), note: varchar("note", { length: 255 }), createdAt: timestamp("createdAt").defaultNow().notNull() });
+export const contributionPlans = mysqlTable("contributionPlans", { id: int("id").autoincrement().primaryKey(), childId: int("childId").notNull(), monthlyAmountCents: int("monthlyAmountCents").notNull(), frequency: mysqlEnum("frequency", ["monthly"]).default("monthly").notNull(), active: int("active").default(1).notNull(), nextContributionAt: timestamp("nextContributionAt"), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull() });
+export const siteSettings = mysqlTable("siteSettings", { id: int("id").autoincrement().primaryKey(), btcAddress: varchar("btcAddress", { length: 128 }).notNull(), usdcAddress: varchar("usdcAddress", { length: 128 }).default("0x0000000000000000000000000000000000000000").notNull(), defaultCurrencyCode: varchar("defaultCurrencyCode", { length: 12 }).default("BTC").notNull(), contactEmail: varchar("contactEmail", { length: 320 }).default("support@example.com").notNull(), contactName: varchar("contactName", { length: 100 }).default("Support Team").notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull() });
+export const currencies = mysqlTable("currencies", { id: int("id").autoincrement().primaryKey(), code: varchar("code", { length: 12 }).notNull().unique(), name: varchar("name", { length: 80 }).notNull(), symbol: varchar("symbol", { length: 8 }).notNull(), active: int("active").default(1).notNull(), createdAt: timestamp("createdAt").defaultNow().notNull() });
+export const faqs = mysqlTable("faqs", { id: int("id").autoincrement().primaryKey(), question: varchar("question", { length: 255 }).notNull(), answer: text("answer").notNull(), sortOrder: int("sortOrder").default(0).notNull(), active: int("active").default(1).notNull(), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull() });
+export const contentArticles = mysqlTable("contentArticles", { id: int("id").autoincrement().primaryKey(), title: varchar("title", { length: 160 }).notNull(), body: text("body").notNull(), imageUrl: varchar("imageUrl", { length: 500 }), linkUrl: varchar("linkUrl", { length: 500 }), catalog: varchar("catalog", { length: 120 }), placement: varchar("placement", { length: 20 }).default("carousel").notNull(), sortOrder: int("sortOrder").default(0).notNull(), active: int("active").default(1).notNull(), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull() });
+export const contactSubmissions = mysqlTable("contactSubmissions", { id: int("id").autoincrement().primaryKey(), email: varchar("email", { length: 320 }).notNull(), userId: int("userId"), status: mysqlEnum("status", ["new", "contacted", "closed"]).default("new").notNull(), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull() });
+export const btcTransfers = mysqlTable("btcTransfers", { id: int("id").autoincrement().primaryKey(), userId: int("userId"), childId: int("childId"), email: varchar("email", { length: 320 }), txHash: varchar("txHash", { length: 160 }).notNull(), amount: varchar("amount", { length: 64 }), status: mysqlEnum("status", ["pending", "confirmed", "rejected"]).default("pending").notNull(), note: varchar("note", { length: 255 }), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull() });
+export const withdrawalRequests = mysqlTable("withdrawalRequests", { id: int("id").autoincrement().primaryKey(), userId: int("userId").notNull(), amountCents: int("amountCents").notNull(), destination: varchar("destination", { length: 255 }).notNull(), note: varchar("note", { length: 500 }), status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(), createdAt: timestamp("createdAt").defaultNow().notNull(), reviewedAt: timestamp("reviewedAt") });
 
-export type User = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;
-
-// TODO: Add your tables here
+export type User = typeof users.$inferSelect; export type InsertUser = typeof users.$inferInsert; export type Child = typeof children.$inferSelect; export type FundingEntry = typeof fundingEntries.$inferSelect; export type ContributionPlan = typeof contributionPlans.$inferSelect; export type SiteSettings = typeof siteSettings.$inferSelect; export type Currency = typeof currencies.$inferSelect; export type Faq = typeof faqs.$inferSelect; export type ContentArticle = typeof contentArticles.$inferSelect; export type ContactSubmission = typeof contactSubmissions.$inferSelect; export type BtcTransfer = typeof btcTransfers.$inferSelect; export type WithdrawalRequest = typeof withdrawalRequests.$inferSelect;
