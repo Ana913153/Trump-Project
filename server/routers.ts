@@ -55,7 +55,7 @@ export const appRouter = router({
   content: router({
     public: publicProcedure.query(async () => ({ settings: await getSiteSettings(), currencies: await listCurrencies(), faqs: await listFaqs(), footerLinks: await listFooterLinks(), donation: await getDonationArticle(), articles: await listArticles() })),
     contact: publicProcedure.input(z.object({ email: z.string().trim().toLowerCase().email() })).mutation(async ({ input, ctx }) => createContactSubmission({ email: input.email, userId: ctx.user?.id ?? null })),
-    submitBtcTransfer: publicProcedure.input(z.object({ txHash: z.string().trim().min(20).max(160), amount: z.string().trim().max(64).optional(), email: z.string().email().optional(), childId: z.number().int().positive().optional() })).mutation(async ({ input, ctx }) => createBtcTransfer({ ...input, userId: ctx.user?.id ?? null })),
+    submitBtcTransfer: publicProcedure.input(z.object({ txHash: z.string().trim().min(20).max(160), amount: z.string().trim().max(64).optional(), email: z.string().email().optional(), childId: z.number().int().positive().optional(), currencyCode: z.enum(["BTC", "USDC"]).default("BTC") }).superRefine((input, ctx) => { if (input.currencyCode === "USDC" && !input.amount) ctx.addIssue({ code: "custom", path: ["amount"], message: "USDC amount is required." }); if (input.currencyCode === "USDC" && !input.email) ctx.addIssue({ code: "custom", path: ["email"], message: "Donor email is required for USDC payments." }); })).mutation(async ({ input, ctx }) => createBtcTransfer({ ...input, userId: ctx.user?.id ?? null })),
   }),
   admin: router({
     listUsers: adminProcedure.query(async () => listUsersForAdmin()),

@@ -1,0 +1,1 @@
+ALTER TABLE `btcTransfers` ADD `currencyCode` varchar(12) DEFAULT 'BTC' NOT NULL;
