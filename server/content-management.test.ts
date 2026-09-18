@@ -18,4 +18,9 @@ describe("content management", () => {
     const caller = appRouter.createCaller(context(null));
     await expect(caller.admin.createArticle({ title: "Project", body: "Project details", placement: "carousel" })).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
+
+  it("requires an administrator to update USDC settings", async () => {
+    const caller = appRouter.createCaller(context(null));
+    await expect(caller.admin.updateSettings({ usdcAddress: "0x1234567890", defaultCurrencyCode: "BTC", contactEmail: "support@example.com", contactName: "Support" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
 });
