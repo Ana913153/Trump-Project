@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { addFundingEntry, createArticle, createBtcTransfer, deleteArticle, deleteCurrency, deleteFaq, deleteFooterLink, updateArticle, createChild, createContactSubmission, createContributionPlan, createCurrency, createFaq, createFooterLink, createLocalUser, createWithdrawalRequest, getChildById, getChildrenForUser, getFundingForChildren, getPlanForChild, getPlansForChildren, getSiteSettings, getDonationArticle, getUserByEmail, getUserByIdentifier, getUserByValidResetToken, listAllArticles, listAllFaqs, listAllFooterLinks, listArticles, listBtcTransfers, listContactSubmissions, listCurrencies, listFaqs, listFooterLinks, listUsersForAdmin, listWithdrawalsForAdmin, listWithdrawalsForUser, savePasswordResetToken, updateBtcAddress, updateBtcTransfer, updateBtcTransferStatus, updateFaq, updatePassword, updateSiteSettings, updateWithdrawalStatus, getAllChildrenForAdmin } from "./db";
+import { addFundingEntry, createArticle, createBtcTransfer, deleteArticle, deleteCurrency, deleteFaq, deleteFooterLink, updateArticle, createChild, createContactSubmission, createContributionPlan, createCurrency, createFaq, createFooterLink, createLocalUser, createWithdrawalRequest, getChildById, getChildrenForUser, getFundingForChildren, getPlanForChild, getPlansForChildren, getSiteSettings, getDonationArticle, getUserByEmail, getUserByIdentifier, getUserByValidResetToken, createUserMessage, listMessagesForUser, markUserMessageRead, listAllArticles, listAllFaqs, listAllFooterLinks, listArticles, listBtcTransfers, listContactSubmissions, listCurrencies, listFaqs, listFooterLinks, listUsersForAdmin, listWithdrawalsForAdmin, listWithdrawalsForUser, savePasswordResetToken, updateBtcAddress, updateBtcTransfer, updateBtcTransferStatus, updateFaq, updatePassword, updateSiteSettings, updateWithdrawalStatus, getAllChildrenForAdmin } from "./db";
 import { createResetToken, hashPassword, hashResetToken, localOpenId, normalizeEmail, normalizeIdentifier, setLocalSession, validatePassword, verifyPassword } from "./auth";
 import { calculateProjection } from "./projection";
 import { storagePut } from "./storage";
@@ -43,6 +43,10 @@ export const appRouter = router({
     resetPassword: publicProcedure.input(z.object({ token: z.string().min(20), password: passwordSchema })).mutation(async ({ input }) => { const user = await getUserByValidResetToken(hashResetToken(input.token)); if (!user) throw new TRPCError({ code: "BAD_REQUEST", message: "The reset link is invalid or expired." }); await updatePassword(user.id, hashPassword(input.password)); return { success: true } as const; }),
     changePassword: protectedProcedure.input(z.object({ currentPassword: z.string().min(1), newPassword: passwordSchema })).mutation(async ({ input, ctx }) => { if (!ctx.user.passwordHash || !verifyPassword(input.currentPassword, ctx.user.passwordHash)) throw new TRPCError({ code: "UNAUTHORIZED", message: "The current password is not correct." }); await updatePassword(ctx.user.id, hashPassword(input.newPassword)); return { success: true } as const; }),
   }),
+  messages: router({
+    list: protectedProcedure.query(({ ctx }) => listMessagesForUser(ctx.user.id)),
+    markRead: protectedProcedure.input(z.object({ id: z.number().int().positive() })).mutation(({ ctx, input }) => markUserMessageRead(ctx.user.id, input.id)),
+  }),
   accounts: router({
     mine: protectedProcedure.query(async ({ ctx }) => { const childrenForUser = await getChildrenForUser(ctx.user.id); return Promise.all(childrenForUser.map(buildAccountSummary)); }),
     withdrawals: protectedProcedure.query(({ ctx }) => listWithdrawalsForUser(ctx.user.id)),
@@ -55,6 +59,7 @@ export const appRouter = router({
   }),
   admin: router({
     listUsers: adminProcedure.query(async () => listUsersForAdmin()),
+    sendMessage: adminProcedure.input(z.object({ userId: z.number().int().positive(), title: z.string().trim().min(1).max(160), body: z.string().trim().min(1).max(10000) })).mutation(({ input }) => createUserMessage(input)),
     listWithdrawals: adminProcedure.query(() => listWithdrawalsForAdmin()),
     updateWithdrawal: adminProcedure.input(z.object({ id: z.number().int().positive(), status: z.enum(["approved", "rejected"]) })).mutation(({ input }) => updateWithdrawalStatus(input.id, input.status)),
     setUserPassword: adminProcedure.input(z.object({ userId: z.number().int().positive(), password: passwordSchema })).mutation(async ({ input }) => { const db = await import("./db").then((module) => module.getDb()); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); const { users } = await import("../drizzle/schema"); const { eq } = await import("drizzle-orm"); const target = await db.select({ id: users.id }).from(users).where(eq(users.id, input.userId)).limit(1); if (!target[0]) throw new TRPCError({ code: "NOT_FOUND", message: "User not found." }); await db.update(users).set({ passwordHash: hashPassword(input.password), resetTokenHash: null, resetTokenExpiresAt: null, updatedAt: new Date() }).where(eq(users.id, input.userId)); return { success: true } as const; }),

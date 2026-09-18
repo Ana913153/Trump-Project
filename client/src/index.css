@@ -655,3 +655,16 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(16, 189, 119
 .contact-admin-card b { color: #2d4437; font-size: 10px; }
 .contact-admin-card a { overflow: hidden; color: #198557; font-size: 10px; font-weight: 750; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
 .contact-admin-card a:hover { text-decoration: underline; }
+.message-modal { position: relative; width: min(92vw, 520px); max-height: min(78vh, 680px); overflow: auto; padding: 34px; border-radius: 28px; background: #fff; box-shadow: 0 25px 70px rgba(24, 59, 45, .22); }
+.message-list { display: grid; gap: 10px; margin-top: 20px; }
+.message-item { padding: 14px; border: 1px solid #e1eee5; border-radius: 15px; background: #f8fcf9; cursor: pointer; }
+.message-item.unread { border-color: #a9dfbd; background: #effaf3; }
+.message-item > div { display: flex; justify-content: space-between; gap: 10px; }
+.message-item b { color: #213b2d; font-size: 12px; }
+.message-item small { color: #8a9b91; font-size: 8px; }
+.message-item p { margin: 8px 0 0; color: #597064; font-size: 10px; line-height: 1.55; white-space: pre-wrap; }
+.message-empty { margin: 20px 0 8px; color: #73867b; }
+.message-compose { display: grid; gap: 10px; padding: 20px; }
+.message-compose select, .message-compose input, .message-compose textarea { width: 100%; border: 1px solid #dce9df; border-radius: 11px; padding: 11px 12px; color: #3d5447; background: #fff; font: inherit; }
+.admin-messages-panel { margin-top: 20px; }
+@media (max-width: 640px) { .message-modal { padding: 25px 20px; border-radius: 22px; } }

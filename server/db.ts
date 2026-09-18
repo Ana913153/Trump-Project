@@ -1,7 +1,7 @@
 import { and, desc, eq, gt, ne, or } from "drizzle-orm";
 import { randomBytes, scryptSync } from "node:crypto";
 import { drizzle } from "drizzle-orm/mysql2";
-import { BtcTransfer, ContactSubmission, ContentArticle, ContributionPlan, Child, Currency, Faq, FundingEntry, InsertUser, SiteSettings, children, contactSubmissions, btcTransfers, contentArticles, contributionPlans, currencies, faqs, footerLinks, fundingEntries, siteSettings, users, withdrawalRequests } from "../drizzle/schema";
+import { BtcTransfer, ContactSubmission, ContentArticle, ContributionPlan, Child, Currency, Faq, FundingEntry, InsertUser, SiteSettings, children, contactSubmissions, btcTransfers, contentArticles, contributionPlans, currencies, faqs, footerLinks, fundingEntries, siteSettings, userMessages, users, withdrawalRequests } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -58,6 +58,9 @@ export async function ensureDefaultAdmin() {
 export async function savePasswordResetToken(userId: number, tokenHash: string, expiresAt: Date) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.update(users).set({ resetTokenHash: tokenHash, resetTokenExpiresAt: expiresAt }).where(eq(users.id, userId)); }
 export async function getUserByValidResetToken(tokenHash: string) { const db = await getDb(); if (!db) return undefined; const result = await db.select().from(users).where(and(eq(users.resetTokenHash, tokenHash), gt(users.resetTokenExpiresAt, new Date()))).limit(1); return result[0]; }
 export async function updatePassword(userId: number, passwordHash: string) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.update(users).set({ passwordHash, resetTokenHash: null, resetTokenExpiresAt: null, updatedAt: new Date() }).where(eq(users.id, userId)); }
+export async function createUserMessage(values: { userId: number; title: string; body: string }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); const result = await db.insert(userMessages).values(values); return db.select().from(userMessages).where(eq(userMessages.id, Number(result[0].insertId))).limit(1).then((rows) => rows[0]); }
+export async function listMessagesForUser(userId: number) { const db = await getDb(); if (!db) return []; return db.select().from(userMessages).where(eq(userMessages.userId, userId)).orderBy(desc(userMessages.createdAt)); }
+export async function markUserMessageRead(userId: number, id: number) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.update(userMessages).set({ readAt: new Date() }).where(and(eq(userMessages.id, id), eq(userMessages.userId, userId))); return { success: true } as const; }
 export async function listUsersForAdmin() { const db = await getDb(); if (!db) return []; return db.select({ id: users.id, name: users.name, email: users.email, username: users.username, role: users.role, loginMethod: users.loginMethod, createdAt: users.createdAt, lastSignedIn: users.lastSignedIn }).from(users).orderBy(desc(users.createdAt)); }
 
 export async function createChild(values: { userId: number; name: string; accountType?: string; targetYears: number; annualReturnBps: number }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); const result = await db.insert(children).values(values); const childId = Number(result[0].insertId); return getChildById(childId); }
