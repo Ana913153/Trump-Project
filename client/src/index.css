@@ -646,3 +646,5 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(16, 189, 119
 .footer-link-admin-row b { display: inline-flex; width: fit-content; align-items: center; min-height: 24px; padding: 5px 9px; border-radius: 999px; background: #e2f7eb; color: #176c4b; font-size: 10px; }
 .footer-link-admin-row span { overflow: hidden; color: #8d9c93; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 640px) { .legal-footer { padding: 24px 14px 31px; } .legal-footer-inner { display: grid; gap: 16px; } .legal-footer-links { justify-content: flex-start; gap: 8px; } .legal-footer-button { min-height: 32px; padding: 8px 11px; font-size: 9px; } }
+.footer-link-admin-body { max-width: 620px; margin: 0; color: #66766c; font-size: 9px; line-height: 1.55; white-space: pre-wrap; }
+.info-page-card > p { white-space: pre-wrap; }

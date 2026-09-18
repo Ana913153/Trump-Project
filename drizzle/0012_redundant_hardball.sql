@@ -1,0 +1,1 @@
+ALTER TABLE `footerLinks` ADD COLUMN `body` TEXT NULL;
