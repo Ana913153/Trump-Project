@@ -622,7 +622,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(16, 189, 119
 .info-page-main { max-width: 760px; margin: 0 auto; padding: 74px 22px 110px; }
 .info-page-card { padding: 38px; border: 1px solid #e0ebe2; border-radius: 18px; background: #fff; box-shadow: 0 18px 48px rgba(31,48,37,.06); }
 .info-page-card h1 { margin: 9px 0 16px; color: #26352b; font-size: 36px; letter-spacing: -1.5px; }
-.info-page-card > p { margin: 0; color: #66766c; font-size: 15px; line-height: 1.8; }
+.info-page-body { display: grid; gap: 16px; }
+.info-page-body p { margin: 0; color: #66766c; font-size: 15px; line-height: 1.85; white-space: pre-wrap; }
 .info-page-contact { display: flex; align-items: center; gap: 7px; margin: 27px 0 22px; color: #718277; font-size: 11px; }
 .info-page-contact a { color: var(--green-dark); font-weight: 750; text-decoration: none; }
 .info-back-button { display: inline-flex; width: fit-content; align-items: center; gap: 8px; text-decoration: none; }
