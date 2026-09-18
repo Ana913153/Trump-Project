@@ -15,17 +15,11 @@ const fallbackCases = [
 
 type CaseItem = { id: number | string; catalog?: string | null; title: string; body: string; imageUrl?: string | null; linkUrl?: string | null };
 
-function randomCases(items: CaseItem[]) {
-  const shuffled = [...items].sort(() => Math.random() - 0.5);
-  const count = Math.min(shuffled.length, 3 + Math.floor(Math.random() * 3));
-  return shuffled.slice(0, count);
-}
-
 export default function Donation() {
   const content = trpc.content.public.useQuery(undefined, { retry: false, refetchOnMount: "always", refetchOnWindowFocus: true });
   const donation = content.data?.donation || fallbackDonation;
-  const sourceCases = useMemo(() => { const live = (content.data?.articles || []) as CaseItem[]; return live.length >= 3 ? live : [...live, ...fallbackCases.filter((item) => !live.some((entry) => entry.title === item.title))].slice(0, 5); }, [content.data?.articles]);
-  const cases = useMemo(() => randomCases(sourceCases), [sourceCases]);
+  const sourceCases = useMemo(() => { const live = (content.data?.articles || []) as CaseItem[]; return live.length ? live : fallbackCases; }, [content.data?.articles]);
+  const cases = sourceCases;
   const address = content.data?.settings?.usdcAddress || "0x0000000000000000000000000000000000000000";
   const email = content.data?.settings?.contactEmail || "support@example.com";
   const [amount, setAmount] = useState("50");
