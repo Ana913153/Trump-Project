@@ -648,3 +648,10 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(16, 189, 119
 @media (max-width: 640px) { .legal-footer { padding: 24px 14px 31px; } .legal-footer-inner { display: grid; gap: 16px; } .legal-footer-links { justify-content: flex-start; gap: 8px; } .legal-footer-button { min-height: 32px; padding: 8px 11px; font-size: 9px; } }
 .footer-link-admin-body { max-width: 620px; margin: 0; color: #66766c; font-size: 9px; line-height: 1.55; white-space: pre-wrap; }
 .info-page-card > p { white-space: pre-wrap; }
+.contact-admin-card { display: flex; align-items: center; gap: 10px; margin-top: 17px; padding: 12px 13px; border: 1px solid #dcefe2; border-radius: 13px; background: linear-gradient(135deg, #f0fbf4, #f8fcf9); }
+.contact-admin-icon { display: grid; width: 31px; height: 31px; place-items: center; flex: 0 0 auto; border-radius: 10px; background: #d9f5e4; color: #198557; }
+.contact-admin-card > div:last-child { display: grid; min-width: 0; gap: 3px; }
+.contact-admin-card span { color: #7d9385; font-size: 8px; font-weight: 750; letter-spacing: .4px; text-transform: uppercase; }
+.contact-admin-card b { color: #2d4437; font-size: 10px; }
+.contact-admin-card a { overflow: hidden; color: #198557; font-size: 10px; font-weight: 750; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.contact-admin-card a:hover { text-decoration: underline; }
