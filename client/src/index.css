@@ -608,3 +608,22 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(16, 189, 119
 .article-admin-preview > div:last-child { min-width: 0; display: grid; gap: 3px; }
 .article-admin-preview span { display: block; max-width: 560px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #718277; font-size: 9px; }
 .article-admin-preview small { color: #9aa99f; font-size: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.legal-footer { width: 100%; padding: 26px 22px 34px; background: #fff; border-top: 1px solid #e6eee8; }
+.legal-footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.legal-footer-brand { color: #26352b; font-size: 11px; font-weight: 800; letter-spacing: -.2px; }
+.legal-footer-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px 20px; }
+.legal-footer-links a { display: inline-flex; align-items: center; gap: 4px; color: #5b9774; font-size: 10px; font-weight: 700; text-decoration: none; }
+.legal-footer-links a:hover { color: var(--green-dark); text-decoration: underline; }
+.footer-links-admin-card { grid-column: 1 / -1; }
+.footer-link-admin-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #edf3ee; }
+.footer-link-admin-row > div { min-width: 0; display: grid; gap: 3px; }
+.footer-link-admin-row b { color: #304239; font-size: 10px; }
+.footer-link-admin-row span { overflow: hidden; color: #8d9c93; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.info-page-main { max-width: 760px; margin: 0 auto; padding: 74px 22px 110px; }
+.info-page-card { padding: 38px; border: 1px solid #e0ebe2; border-radius: 18px; background: #fff; box-shadow: 0 18px 48px rgba(31,48,37,.06); }
+.info-page-card h1 { margin: 9px 0 16px; color: #26352b; font-size: 36px; letter-spacing: -1.5px; }
+.info-page-card > p { margin: 0; color: #66766c; font-size: 15px; line-height: 1.8; }
+.info-page-contact { display: flex; align-items: center; gap: 7px; margin: 27px 0 22px; color: #718277; font-size: 11px; }
+.info-page-contact a { color: var(--green-dark); font-weight: 750; text-decoration: none; }
+.info-back-button { display: inline-flex; width: fit-content; align-items: center; gap: 8px; text-decoration: none; }
+@media (max-width: 640px) { .legal-footer { padding: 20px 14px 28px; } .legal-footer-inner { display: grid; gap: 13px; } .legal-footer-links { justify-content: flex-start; gap: 11px 16px; } .legal-footer-links a { font-size: 9px; } .info-page-main { padding: 40px 14px 80px; } .info-page-card { padding: 25px 20px; } .info-page-card h1 { font-size: 29px; } }

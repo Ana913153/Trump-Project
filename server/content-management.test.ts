@@ -19,6 +19,12 @@ describe("content management", () => {
     await expect(caller.admin.createArticle({ title: "Project", body: "Project details", placement: "carousel" })).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
+  it("requires an administrator to manage footer links", async () => {
+    const caller = appRouter.createCaller(context(null));
+    await expect(caller.admin.createFooterLink({ title: "About Us", url: "/about" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.admin.deleteFooterLink({ id: 1 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
   it("requires an administrator to update USDC settings", async () => {
     const caller = appRouter.createCaller(context(null));
     await expect(caller.admin.updateSettings({ usdcAddress: "0x1234567890", defaultCurrencyCode: "BTC", contactEmail: "support@example.com", contactName: "Support" })).rejects.toMatchObject({ code: "FORBIDDEN" });

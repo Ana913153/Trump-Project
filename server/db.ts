@@ -1,7 +1,7 @@
 import { and, desc, eq, gt, ne, or } from "drizzle-orm";
 import { randomBytes, scryptSync } from "node:crypto";
 import { drizzle } from "drizzle-orm/mysql2";
-import { BtcTransfer, ContactSubmission, ContentArticle, ContributionPlan, Child, Currency, Faq, FundingEntry, InsertUser, SiteSettings, children, contactSubmissions, btcTransfers, contentArticles, contributionPlans, currencies, faqs, fundingEntries, siteSettings, users, withdrawalRequests } from "../drizzle/schema";
+import { BtcTransfer, ContactSubmission, ContentArticle, ContributionPlan, Child, Currency, Faq, FundingEntry, InsertUser, SiteSettings, children, contactSubmissions, btcTransfers, contentArticles, contributionPlans, currencies, faqs, footerLinks, fundingEntries, siteSettings, users, withdrawalRequests } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -110,7 +110,19 @@ export async function listFaqs(): Promise<Faq[]> {
 export async function listAllFaqs(): Promise<Faq[]> { const db = await getDb(); if (!db) return listFaqs(); return db.select().from(faqs).where(eq(faqs.active, 1)).orderBy(faqs.sortOrder, faqs.id); }
 export async function createFaq(values: { question: string; answer: string }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); const result = await db.insert(faqs).values({ ...values, sortOrder: 99, active: 1 }); return db.select().from(faqs).where(eq(faqs.id, Number(result[0].insertId))).limit(1).then((rows) => rows[0]); }
 export async function deleteFaq(id: number) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.update(faqs).set({ active: 0, updatedAt: new Date() }).where(eq(faqs.id, id)); return { success: true } as const; }
+const DEFAULT_FOOTER_LINKS = [
+  ["About Us", "/about"],
+  ["Contact Us", "/contact"],
+  ["Tax Policy", "/tax-policy"],
+  ["Privacy Policy", "/privacy"],
+] as const;
+
+export async function listFooterLinks() { const db = await getDb(); if (!db) return DEFAULT_FOOTER_LINKS.map(([title, url], index) => ({ id: index + 1, title, url, sortOrder: index, active: 1 })); return db.select().from(footerLinks).where(eq(footerLinks.active, 1)).orderBy(footerLinks.sortOrder, footerLinks.id); }
+export async function createFooterLink(values: { title: string; url: string }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); const result = await db.insert(footerLinks).values({ ...values, sortOrder: 99, active: 1 }); return db.select().from(footerLinks).where(eq(footerLinks.id, Number(result[0].insertId))).limit(1).then((rows) => rows[0]); }
+export async function deleteFooterLink(id: number) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.update(footerLinks).set({ active: 0, updatedAt: new Date() }).where(eq(footerLinks.id, id)); return { success: true } as const; }
+
 export async function listArticles(): Promise<ContentArticle[]> { const db = await getDb(); if (!db) return []; return db.select().from(contentArticles).where(and(eq(contentArticles.active, 1), eq(contentArticles.placement, "carousel"))).orderBy(contentArticles.sortOrder, contentArticles.id); }
+export async function listAllFooterLinks() { const db = await getDb(); if (!db) return listFooterLinks(); return db.select().from(footerLinks).where(eq(footerLinks.active, 1)).orderBy(footerLinks.sortOrder, footerLinks.id); }
 export async function listAllArticles(): Promise<ContentArticle[]> { const db = await getDb(); if (!db) return []; return db.select().from(contentArticles).where(eq(contentArticles.active, 1)).orderBy(contentArticles.placement, contentArticles.sortOrder, contentArticles.id); }
 export async function getDonationArticle(): Promise<ContentArticle | undefined> { const db = await getDb(); if (!db) return undefined; return (await db.select().from(contentArticles).where(and(eq(contentArticles.active, 1), eq(contentArticles.placement, "donation"))).orderBy(contentArticles.sortOrder, contentArticles.id).limit(1))[0]; }
 export async function createArticle(values: { title: string; body: string; imageUrl?: string; linkUrl?: string; catalog?: string; placement?: string }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); const result = await db.insert(contentArticles).values({ ...values, placement: values.placement || "carousel", sortOrder: 99, active: 1 }); return db.select().from(contentArticles).where(eq(contentArticles.id, Number(result[0].insertId))).limit(1).then((rows) => rows[0]); }
