@@ -603,3 +603,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(16, 189, 119
 .home-case-directory { margin: 28px 0 34px; }
 
 .project-action-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 128px; }
+.article-admin-preview { display: flex; align-items: flex-start; gap: 10px; min-width: 0; flex: 1; }
+.article-admin-preview img, .article-admin-thumb-placeholder { width: 54px; height: 42px; flex: 0 0 54px; border-radius: 7px; object-fit: cover; background: #edf5ef; color: #7a9181; display: grid; place-items: center; font-size: 8px; }
+.article-admin-preview > div:last-child { min-width: 0; display: grid; gap: 3px; }
+.article-admin-preview span { display: block; max-width: 560px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #718277; font-size: 9px; }
+.article-admin-preview small { color: #9aa99f; font-size: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
