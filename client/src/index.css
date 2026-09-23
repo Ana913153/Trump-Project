@@ -811,3 +811,14 @@ html, body, #root { max-width: 100%; overflow-x: hidden; }
 .legal-footer-button { cursor: pointer; }
 
 .global-contact-backdrop { z-index: 120; }
+
+
+/* High-visibility donation CTA */
+.donate-now-button { color: #c62828 !important; background: #fff4f4 !important; border: 2px solid #c62828 !important; font-weight: 850; box-shadow: 0 8px 20px rgba(198, 40, 40, .18); }
+.donate-now-button:hover { color: #fff !important; background: #c62828 !important; border-color: #a91f1f !important; }
+.donate-now-button svg { color: currentColor; }
+
+/* Home donation CTA */
+.donation-home-card > .article-copy > .auth-submit { color: #c62828 !important; background: #fff4f4 !important; border: 2px solid #c62828 !important; font-weight: 850; box-shadow: 0 8px 20px rgba(198, 40, 40, .18); }
+.donation-home-card > .article-copy > .auth-submit:hover { color: #fff !important; background: #c62828 !important; border-color: #a91f1f !important; }
+.donation-home-card > .article-copy > .auth-submit svg { color: currentColor; }
