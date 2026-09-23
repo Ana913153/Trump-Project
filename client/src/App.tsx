@@ -9,11 +9,13 @@ import Donation from "@/pages/Donation";
 import Home from "@/pages/Home";
 import ResetPassword from "./pages/ResetPassword";
 import InfoPage from "./pages/InfoPage";
+import CaseDetail from "./pages/CaseDetail";
+import GlobalContactPrompt from "./components/GlobalContactPrompt";
 
 function Router() {
-  return <Switch><Route path="/" component={Home} /><Route path="/donate" component={Donation} /><Route path="/admin" component={Admin} /><Route path="/reset-password" component={ResetPassword} /><Route path="/about" component={InfoPage} /><Route path="/contact" component={InfoPage} /><Route path="/tax-policy" component={InfoPage} /><Route path="/privacy" component={InfoPage} /><Route path="/:slug" component={InfoPage} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
+  return <Switch><Route path="/" component={Home} /><Route path="/donate" component={Donation} /><Route path="/case/:id" component={CaseDetail} /><Route path="/admin" component={Admin} /><Route path="/reset-password" component={ResetPassword} /><Route path="/about" component={InfoPage} /><Route path="/contact" component={InfoPage} /><Route path="/tax-policy" component={InfoPage} /><Route path="/privacy" component={InfoPage} /><Route path="/:slug" component={InfoPage} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
 }
 
 export default function App() {
-  return <ErrorBoundary><ThemeProvider defaultTheme="light"><TooltipProvider><Toaster position="top-right" /><Router /></TooltipProvider></ThemeProvider></ErrorBoundary>;
+  return <ErrorBoundary><ThemeProvider defaultTheme="light"><TooltipProvider><Toaster position="top-right" /><GlobalContactPrompt /><Router /></TooltipProvider></ThemeProvider></ErrorBoundary>;
 }

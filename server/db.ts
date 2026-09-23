@@ -1,7 +1,7 @@
 import { and, desc, eq, gt, ne, or } from "drizzle-orm";
 import { randomBytes, scryptSync } from "node:crypto";
 import { drizzle } from "drizzle-orm/mysql2";
-import { BtcTransfer, ContactSubmission, ContentArticle, ContributionPlan, Child, Currency, Faq, FundingEntry, InsertUser, SiteSettings, children, contactSubmissions, btcTransfers, contentArticles, contributionPlans, currencies, faqs, footerLinks, fundingEntries, siteSettings, userMessages, users, withdrawalRequests } from "../drizzle/schema";
+import { BtcTransfer, ContactSubmission, ContentArticle, ContributionPlan, Child, Currency, Faq, FundingEntry, InsertUser, SiteSettings, ProjectProgress, ProjectMilestone, ProjectPerson, children, contactSubmissions, btcTransfers, contentArticles, contributionPlans, currencies, faqs, footerLinks, fundingEntries, projectProgress, projectMilestones, projectPeople, siteSettings, userMessages, users, withdrawalRequests } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -188,3 +188,34 @@ export async function updateWithdrawalStatus(id: number, status: "approved" | "r
   await db.update(withdrawalRequests).set({ status, reviewedAt: new Date() }).where(eq(withdrawalRequests.id, id));
   return { success: true } as const;
 }
+
+
+const DEFAULT_PROJECT_PROGRESS = { title: "Community project progress", description: "Follow the project's funding progress, practical milestones, and the people helping turn contributions into action.", imageUrl: null as string | null, targetAmountCents: 1000000, raisedAmountCents: 0, currencyCode: "USD", eyebrow: "项目透明度", sectionTitle: "社区项目进展", milestonesLabel: "阶段结果", milestonesTitle: "里程碑", peopleLabel: "人物", peopleTitle: "项目团队" };
+
+export async function getProjectContent() {
+  const db = await getDb();
+  if (!db) return { projectProgress: { id: 0, ...DEFAULT_PROJECT_PROGRESS, updatedAt: new Date() } as ProjectProgress, milestones: [] as ProjectMilestone[], people: [] as ProjectPerson[] };
+  let progress = (await db.select().from(projectProgress).limit(1))[0];
+  if (!progress) {
+    await db.insert(projectProgress).values(DEFAULT_PROJECT_PROGRESS);
+    progress = (await db.select().from(projectProgress).limit(1))[0];
+  }
+  const milestones = await db.select().from(projectMilestones).orderBy(projectMilestones.sortOrder, projectMilestones.id);
+  const people = await db.select().from(projectPeople).orderBy(projectPeople.sortOrder, projectPeople.id);
+  return { projectProgress: progress, milestones, people };
+}
+
+export async function updateProjectProgress(values: { title: string; description: string; imageUrl?: string | null; targetAmountCents: number; raisedAmountCents: number; currencyCode: string; eyebrow: string; sectionTitle: string; milestonesLabel: string; milestonesTitle: string; peopleLabel: string; peopleTitle: string }) {
+  const db = await getDb(); if (!db) throw new Error("Database is not configured");
+  const existing = (await db.select().from(projectProgress).limit(1))[0];
+  if (existing) await db.update(projectProgress).set({ ...values, updatedAt: new Date() }).where(eq(projectProgress.id, existing.id));
+  else await db.insert(projectProgress).values(values);
+  return getProjectContent();
+}
+
+export async function createProjectMilestone(values: { title: string; description: string }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); const result = await db.insert(projectMilestones).values({ ...values, sortOrder: 99 }); return db.select().from(projectMilestones).where(eq(projectMilestones.id, Number(result[0].insertId))).limit(1).then((rows) => rows[0]); }
+export async function updateProjectMilestone(id: number, values: { title: string; description: string }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.update(projectMilestones).set({ ...values, updatedAt: new Date() }).where(eq(projectMilestones.id, id)); return db.select().from(projectMilestones).where(eq(projectMilestones.id, id)).limit(1).then((rows) => rows[0]); }
+export async function deleteProjectMilestone(id: number) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.delete(projectMilestones).where(eq(projectMilestones.id, id)); return { success: true } as const; }
+export async function createProjectPerson(values: { name: string; role: string; bio: string; imageUrl?: string | null }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); const result = await db.insert(projectPeople).values({ ...values, sortOrder: 99 }); return db.select().from(projectPeople).where(eq(projectPeople.id, Number(result[0].insertId))).limit(1).then((rows) => rows[0]); }
+export async function updateProjectPerson(id: number, values: { name: string; role: string; bio: string; imageUrl?: string | null }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.update(projectPeople).set({ ...values, updatedAt: new Date() }).where(eq(projectPeople.id, id)); return db.select().from(projectPeople).where(eq(projectPeople.id, id)).limit(1).then((rows) => rows[0]); }
+export async function deleteProjectPerson(id: number) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.delete(projectPeople).where(eq(projectPeople.id, id)); return { success: true } as const; }
