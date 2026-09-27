@@ -822,3 +822,53 @@ html, body, #root { max-width: 100%; overflow-x: hidden; }
 .donation-home-card > .article-copy > .auth-submit { color: #c62828 !important; background: #fff4f4 !important; border: 2px solid #c62828 !important; font-weight: 850; box-shadow: 0 8px 20px rgba(198, 40, 40, .18); }
 .donation-home-card > .article-copy > .auth-submit:hover { color: #fff !important; background: #c62828 !important; border-color: #a91f1f !important; }
 .donation-home-card > .article-copy > .auth-submit svg { color: currentColor; }
+.quick-plan-schedule { width: 100%; border: 1px solid #e8eee9; text-align: left; cursor: pointer; font: inherit; }
+.quick-plan-schedule:hover { border-color: #b8dcc6; box-shadow: 0 8px 18px rgba(36, 77, 53, .08); }
+.quick-plan-schedule:focus-visible { outline: 2px solid #149c62; outline-offset: 2px; }
+
+
+/* Staking plan placement and admin submission table */
+.staking-panel { margin-top: 18px; padding: 20px 22px; border: 1px solid #dfeae2; border-radius: 18px; background: linear-gradient(135deg, #fbfffc 0%, #f2faf5 100%); box-shadow: 0 10px 28px rgba(26, 83, 50, .08); }
+.staking-panel .section-title-row { margin-bottom: 16px; }
+.staking-panel h2 { margin: 4px 0 6px; }
+.staking-panel p { margin: 0; color: #708078; font-size: 12px; }
+.staking-amount-options { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; margin: 14px 0 18px; }
+.staking-amount-options > button { min-width: 72px; padding: 10px 15px; border: 1px solid #cfe1d4; border-radius: 10px; background: #fff; color: #236d49; font-weight: 700; cursor: pointer; }
+.staking-amount-options > button:hover, .staking-amount-options > button.selected { border-color: #27a66a; background: #e5f8ed; color: #087d49; box-shadow: 0 4px 12px rgba(39, 166, 106, .15); }
+.staking-amount-options label { display: grid; gap: 6px; min-width: 180px; color: #718078; font-size: 11px; }
+.staking-amount-options input, .staking-duration-control input { accent-color: var(--green); }
+.staking-amount-options input { width: 100%; padding: 10px 11px; border: 1px solid #d7e4da; border-radius: 10px; background: #fff; color: #26352b; }
+.staking-duration-control { display: grid; gap: 8px; padding: 13px 14px; border: 1px solid #e1eee4; border-radius: 12px; background: rgba(255,255,255,.72); color: #718078; font-size: 11px; }
+.staking-duration-control strong { color: #1d6b45; font-size: 16px; }
+.staking-duration-control input { width: 100%; }
+.staking-expiry { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; margin: 14px 0; padding: 12px 14px; border-radius: 11px; background: #e8f7ed; color: #5b7464; font-size: 11px; }
+.staking-expiry b { color: #17683f; font-size: 13px; }
+.admin-staking-cell { display: grid !important; gap: 3px; min-width: 190px; padding: 8px 10px; border: 1px solid #dcebe0; border-radius: 10px; background: #f5fbf7; }
+.admin-staking-cell b { color: #668073; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+.admin-staking-cell strong { margin-left: 0 !important; color: #1d7049 !important; font-size: 12px !important; }
+.admin-staking-cell small { color: #8b9b91; font-size: 10px; white-space: nowrap; }
+.admin-child-values { align-items: stretch; gap: 10px; }
+.admin-child-values > span:not(.admin-staking-cell) { display: grid; align-content: center; min-width: 105px; padding: 8px 10px; border: 1px solid #edf2ee; border-radius: 9px; background: #fbfdfb; }
+@media (max-width: 640px) {
+  .staking-panel { padding: 16px 14px; }
+  .staking-expiry { grid-template-columns: 1fr; gap: 4px; }
+  .admin-staking-cell { min-width: 160px; }
+}
+
+
+.staking-success { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding: 12px 14px; border: 1px solid #bfe8cd; border-radius: 11px; background: #e8f8ed; color: #167345; font-size: 12px; font-weight: 700; }
+.staking-submissions-panel { margin-top: 20px; overflow: hidden; border: 1px solid #e3ece5; border-radius: 16px; background: #fff; box-shadow: 0 10px 28px rgba(31, 48, 37, .05); }
+.staking-submissions-panel .customer-panel-head { padding: 17px 20px; border-bottom: 1px solid #edf2ee; }
+.staking-submissions-table { overflow-x: auto; }
+.staking-submission-head, .staking-submission-row { display: grid; grid-template-columns: minmax(150px, 1.25fr) minmax(140px, 1fr) 120px 110px minmax(180px, 1.25fr); align-items: center; gap: 12px; min-width: 740px; padding: 12px 18px; }
+.staking-submission-head { background: #f4faf6; color: #7b9083; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.staking-submission-row { border-top: 1px solid #f0f4f1; color: #52655a; font-size: 11px; }
+.staking-submission-row:hover { background: #fbfefb; }
+.staking-submission-row > span:first-child { display: grid; gap: 3px; }
+.staking-submission-row b { color: #26392d; font-size: 12px; }
+.staking-submission-row small { color: #98a99e; font-size: 9px; }
+.staking-submission-row strong { color: #157348; font-size: 12px; }
+.staking-submission-row time { color: #7a8f82; white-space: nowrap; }
+@media (max-width: 720px) {
+  .staking-submissions-panel .customer-panel-head { align-items: flex-start; }
+}

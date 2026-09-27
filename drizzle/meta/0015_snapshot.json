@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "a74a3d4b-b8db-4615-9f1f-d0b0e8604cb3",
+  "id": "5a88d599-d6a7-4d5c-984d-e84255f69943",
   "prevId": "47bf9bad-ce13-4e85-b8bc-a65878aef785",
   "tables": {
     "btcTransfers": {
@@ -142,14 +142,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": 18
-        },
-        "planStartedAt": {
-          "name": "planStartedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
         },
         "annualReturnBps": {
           "name": "annualReturnBps",

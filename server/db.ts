@@ -125,6 +125,35 @@ export async function createFooterLink(values: { title: string; url: string; bod
 export async function deleteFooterLink(id: number) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.update(footerLinks).set({ active: 0, updatedAt: new Date() }).where(eq(footerLinks.id, id)); return { success: true } as const; }
 
 export async function listArticles(): Promise<ContentArticle[]> { const db = await getDb(); if (!db) return []; return db.select().from(contentArticles).where(and(eq(contentArticles.active, 1), eq(contentArticles.placement, "carousel"))).orderBy(contentArticles.sortOrder, contentArticles.id); }
+export async function getPublishedAnnouncement(): Promise<ContentArticle | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  return (await db.select().from(contentArticles).where(and(eq(contentArticles.active, 1), eq(contentArticles.placement, "announcement"))).orderBy(desc(contentArticles.createdAt), desc(contentArticles.id)).limit(1))[0];
+}
+export async function listAnnouncementsForAdmin(): Promise<ContentArticle[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(contentArticles).where(eq(contentArticles.placement, "announcement")).orderBy(desc(contentArticles.createdAt), desc(contentArticles.id));
+}
+export async function createAnnouncement(values: { title: string; body: string; imageUrl?: string }) {
+  return createArticle({ title: values.title, body: values.body, imageUrl: values.imageUrl || "/gold-eagle-initiative.png", placement: "announcement" });
+}
+export async function updateAnnouncement(id: number, values: { title: string; body: string; imageUrl?: string }) {
+  const db = await getDb(); if (!db) throw new Error("Database is not configured");
+  await db.update(contentArticles).set({ title: values.title, body: values.body, imageUrl: values.imageUrl || "/gold-eagle-initiative.png", placement: "announcement", updatedAt: new Date() }).where(and(eq(contentArticles.id, id), eq(contentArticles.placement, "announcement")));
+  return db.select().from(contentArticles).where(eq(contentArticles.id, id)).limit(1).then((rows) => rows[0]);
+}
+export async function setAnnouncementActive(id: number, active: boolean) {
+  const db = await getDb(); if (!db) throw new Error("Database is not configured");
+  await db.update(contentArticles).set({ active: active ? 1 : 0, updatedAt: new Date() }).where(and(eq(contentArticles.id, id), eq(contentArticles.placement, "announcement")));
+  return { success: true } as const;
+}
+export async function deleteAnnouncement(id: number) {
+  const db = await getDb(); if (!db) throw new Error("Database is not configured");
+  await db.delete(contentArticles).where(and(eq(contentArticles.id, id), eq(contentArticles.placement, "announcement")));
+  return { success: true } as const;
+}
+
 export async function listAllFooterLinks() { return listFooterLinks(); }
 export async function listAllArticles(): Promise<ContentArticle[]> { const db = await getDb(); if (!db) return []; return db.select().from(contentArticles).where(eq(contentArticles.active, 1)).orderBy(contentArticles.placement, contentArticles.sortOrder, contentArticles.id); }
 export async function getDonationArticle(): Promise<ContentArticle | undefined> { const db = await getDb(); if (!db) return undefined; return (await db.select().from(contentArticles).where(and(eq(contentArticles.active, 1), eq(contentArticles.placement, "donation"))).orderBy(contentArticles.sortOrder, contentArticles.id).limit(1))[0]; }
