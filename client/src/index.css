@@ -695,6 +695,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(16, 189, 119
 .project-milestone-list li { padding-left: 4px; }
 .project-milestone-list b { color: #315442; font-size: 12px; }
 .project-milestone-list p { margin: 4px 0 0; font-size: 11px; line-height: 1.55; }
+.project-milestone-toggle { display: inline-flex; align-items: center; gap: 5px; min-height: 34px; margin-top: 8px; padding: 6px 10px; border: 1px solid #cfe8d7; border-radius: 999px; background: #f1faf4; color: #248052; font-size: 10px; font-weight: 750; cursor: pointer; }
+.project-milestone-toggle:hover { border-color: #9fd2b0; background: #e6f6eb; }
+.project-milestone-toggle:focus-visible { outline: 2px solid #3aa66c; outline-offset: 2px; }
 .project-people-list { display: grid; gap: 12px; margin-top: 17px; }
 .project-person { display: flex; align-items: flex-start; gap: 11px; min-width: 0; padding: 10px; border: 1px solid #e0efe4; border-radius: 14px; background: #fbfefc; }
 .project-person img, .project-person-placeholder { width: 52px; height: 52px; flex: 0 0 52px; border-radius: 14px; object-fit: cover; }
