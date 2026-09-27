@@ -6,7 +6,7 @@ describe("calculateProjection", () => {
     const result = calculateProjection(
       [{ amountCents: 100_000 }, { amountCents: 50_000 }],
       { monthlyAmountCents: 10_000 },
-      { targetYears: 1, annualReturnBps: 600 },
+      { targetYears: 365, annualReturnBps: 600 },
     );
 
     expect(result.principalCents).toBe(150_000);
@@ -19,7 +19,7 @@ describe("calculateProjection", () => {
     const result = calculateProjection(
       [{ amountCents: 100_000 }],
       { monthlyAmountCents: 10_000 },
-      { targetYears: 2, annualReturnBps: 0 },
+      { targetYears: 730, annualReturnBps: 0 },
     );
 
     expect(result.projectedCents).toBe(340_000);

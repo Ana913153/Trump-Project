@@ -1,7 +1,7 @@
 import { and, desc, eq, gt, ne, or } from "drizzle-orm";
 import { randomBytes, scryptSync } from "node:crypto";
 import { drizzle } from "drizzle-orm/mysql2";
-import { BtcTransfer, ContactSubmission, ContentArticle, ContributionPlan, Child, Currency, Faq, FundingEntry, InsertUser, SiteSettings, ProjectProgress, ProjectMilestone, ProjectPerson, children, contactSubmissions, btcTransfers, contentArticles, contributionPlans, currencies, faqs, footerLinks, fundingEntries, projectProgress, projectMilestones, projectPeople, siteSettings, userMessages, users, withdrawalRequests } from "../drizzle/schema";
+import { BtcTransfer, ContactSubmission, ContentArticle, ContributionPlan, Child, Currency, Faq, FundingEntry, InsertUser, SiteSettings, ProjectProgress, ProjectMilestone, ProjectPerson, children, stakingPositions, contactSubmissions, btcTransfers, contentArticles, contributionPlans, currencies, faqs, footerLinks, fundingEntries, projectProgress, projectMilestones, projectPeople, siteSettings, userMessages, users, withdrawalRequests } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -33,24 +33,29 @@ export async function getUserByEmail(email: string) { const db = await getDb(); 
 export async function getUserByIdentifier(identifier: string) { const db = await getDb(); if (!db) return undefined; const normalized = identifier.trim().toLowerCase(); const result = await db.select().from(users).where(or(eq(users.email, normalized), eq(users.username, normalized))).limit(1); return result[0]; }
 export async function createLocalUser(values: InsertUser) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.insert(users).values(values); return getUserByOpenId(values.openId); }
 export const DEFAULT_ADMIN_USERNAME = "admin";
-export const DEFAULT_ADMIN_PASSWORD = "Zz123123";
 
 export async function ensureDefaultAdmin() {
   const db = await getDb();
   if (!db) {
-    console.warn("[Auth] DATABASE_URL is not configured; default admin was not initialized");
+    console.warn("[Auth] DATABASE_URL is not configured; admin initialization was skipped");
     return null;
   }
-  const username = DEFAULT_ADMIN_USERNAME;
-  const email = "admin@local.test";
-  const password = DEFAULT_ADMIN_PASSWORD;
+  const username = process.env.ADMIN_USERNAME?.trim() || DEFAULT_ADMIN_USERNAME;
+  const email = process.env.ADMIN_EMAIL?.trim() || "admin@local.test";
   const existing = (await db.select().from(users).where(eq(users.username, username)).limit(1))[0];
+  if (existing) {
+    if (existing.role !== "admin") throw new Error("Configured administrator username is already owned by a non-admin user");
+    return existing;
+  }
+
+  const password = process.env.ADMIN_INITIAL_PASSWORD;
+  if (!password || password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
+    console.warn("[Auth] ADMIN_INITIAL_PASSWORD is missing or does not meet the password policy; no default admin was created");
+    return null;
+  }
+
   const salt = randomBytes(16).toString("hex");
   const passwordHash = `${salt}:${scryptSync(password, salt, 64).toString("hex")}`;
-  if (existing) {
-    await db.update(users).set({ email, name: "Administrator", passwordHash, role: "admin", loginMethod: "local", updatedAt: new Date() }).where(eq(users.id, existing.id));
-    return getUserByOpenId(existing.openId);
-  }
   const openId = `local-admin-${username}`;
   await db.insert(users).values({ openId, username, email, name: "Administrator", passwordHash, role: "admin", loginMethod: "local", lastSignedIn: new Date() });
   return getUserByOpenId(openId);
@@ -67,6 +72,7 @@ export async function createChild(values: { userId: number; name: string; accoun
 export async function getChildById(childId: number) { const db = await getDb(); if (!db) return undefined; const result = await db.select().from(children).where(eq(children.id, childId)).limit(1); return result[0]; }
 export async function getChildrenForUser(userId: number) { const db = await getDb(); if (!db) return []; return db.select().from(children).where(eq(children.userId, userId)).orderBy(desc(children.createdAt)); }
 export async function getAllChildrenForAdmin() { const db = await getDb(); if (!db) return []; return db.select({ child: children, user: { id: users.id, name: users.name, email: users.email } }).from(children).innerJoin(users, eq(children.userId, users.id)).orderBy(desc(children.createdAt)); }
+export async function listStakingPositionsForChild(childId: number) { const db = await getDb(); if (!db) return []; return db.select().from(stakingPositions).where(eq(stakingPositions.childId, childId)).orderBy(desc(stakingPositions.createdAt)); }
 export async function getFundingForChildren(childIds: number[]) { const db = await getDb(); if (!db || childIds.length === 0) return []; return db.select().from(fundingEntries).where(or(...childIds.map((id) => eq(fundingEntries.childId, id)))).orderBy(desc(fundingEntries.createdAt)); }
 export async function getPlansForChildren(childIds: number[]) { const db = await getDb(); if (!db || childIds.length === 0) return []; return db.select().from(contributionPlans).where(or(...childIds.map((id) => eq(contributionPlans.childId, id)))).orderBy(desc(contributionPlans.createdAt)); }
 export async function addFundingEntry(values: { childId: number; type: "treasury" | "deposit" | "contribution" | "withdrawal"; amountCents: number; currencyCode?: string; note?: string }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); const result = await db.insert(fundingEntries).values({ ...values, currencyCode: values.currencyCode || "BTC" }); return db.select().from(fundingEntries).where(eq(fundingEntries.id, Number(result[0].insertId))).limit(1).then((rows) => rows[0]); }
@@ -98,7 +104,7 @@ export async function updateBtcAddress(btcAddress: string) {
   const normalizedAddress = btcAddress.trim().toLowerCase();
   const existing = (await db.select().from(siteSettings).limit(1))[0];
   if (existing) { await db.update(siteSettings).set({ btcAddress: normalizedAddress, updatedAt: new Date() }).where(eq(siteSettings.id, existing.id)); }
-  else await db.insert(siteSettings).values({ btcAddress: normalizedAddress, defaultCurrencyCode: "BTC", contactEmail: "support@nest.example", contactName: "Nest 客服" });
+  else await db.insert(siteSettings).values({ btcAddress: normalizedAddress, defaultCurrencyCode: "BTC", contactEmail: "support@example.com", contactName: "Nest Support" });
   return getSiteSettings();
 }
 
@@ -122,6 +128,7 @@ const DEFAULT_FOOTER_LINKS = [
 
 export async function listFooterLinks() { const db = await getDb(); const fallback = DEFAULT_FOOTER_LINKS.map(([title, url], index) => ({ id: index + 1, title, url, body: null, sortOrder: index, active: 1 })); if (!db) return fallback; const rows = await db.select().from(footerLinks).where(eq(footerLinks.active, 1)).orderBy(footerLinks.sortOrder, footerLinks.id); return rows.length ? rows : fallback; }
 export async function createFooterLink(values: { title: string; url: string; body: string }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); const result = await db.insert(footerLinks).values({ ...values, sortOrder: 99, active: 1 }); return db.select().from(footerLinks).where(eq(footerLinks.id, Number(result[0].insertId))).limit(1).then((rows) => rows[0]); }
+export async function updateFooterLink(id: number, values: { title: string; url: string; body: string }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.update(footerLinks).set({ ...values, updatedAt: new Date() }).where(eq(footerLinks.id, id)); return db.select().from(footerLinks).where(eq(footerLinks.id, id)).limit(1).then((rows) => rows[0]); }
 export async function deleteFooterLink(id: number) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.update(footerLinks).set({ active: 0, updatedAt: new Date() }).where(eq(footerLinks.id, id)); return { success: true } as const; }
 
 export async function listArticles(): Promise<ContentArticle[]> { const db = await getDb(); if (!db) return []; return db.select().from(contentArticles).where(and(eq(contentArticles.active, 1), eq(contentArticles.placement, "carousel"))).orderBy(contentArticles.sortOrder, contentArticles.id); }
@@ -199,27 +206,15 @@ export async function updateBtcTransferStatus(id: number, status: "pending" | "c
 export async function updateBtcTransfer(id: number, values: { txHash: string; amount?: string | null; email?: string | null; status: "pending" | "confirmed" | "rejected" }) { const db = await getDb(); if (!db) throw new Error("Database is not configured"); await db.update(btcTransfers).set({ ...values, updatedAt: new Date() }).where(eq(btcTransfers.id, id)); return db.select().from(btcTransfers).where(eq(btcTransfers.id, id)).limit(1).then((rows) => rows[0]); }
 
 
-export async function createWithdrawalRequest(values: { userId: number; amountCents: number; destination: string; note?: string }) {
-  const db = await getDb(); if (!db) throw new Error("Database is not configured");
-  const result = await db.insert(withdrawalRequests).values(values);
-  return db.select().from(withdrawalRequests).where(eq(withdrawalRequests.id, Number(result[0].insertId))).limit(1).then((rows) => rows[0]);
-}
 export async function listWithdrawalsForUser(userId: number) {
   const db = await getDb(); if (!db) return [];
   return db.select().from(withdrawalRequests).where(eq(withdrawalRequests.userId, userId)).orderBy(desc(withdrawalRequests.createdAt));
 }
 export async function listWithdrawalsForAdmin() {
   const db = await getDb(); if (!db) return [];
-  return db.select({ request: withdrawalRequests, user: { name: users.name, email: users.email, username: users.username } }).from(withdrawalRequests).leftJoin(users, eq(withdrawalRequests.userId, users.id)).orderBy(desc(withdrawalRequests.createdAt));
+  return db.select({ request: withdrawalRequests, user: { name: users.name, email: users.email, username: users.username }, child: { name: children.name } }).from(withdrawalRequests).leftJoin(users, eq(withdrawalRequests.userId, users.id)).leftJoin(children, eq(withdrawalRequests.childId, children.id)).orderBy(desc(withdrawalRequests.createdAt));
 }
-export async function updateWithdrawalStatus(id: number, status: "approved" | "rejected") {
-  const db = await getDb(); if (!db) throw new Error("Database is not configured");
-  await db.update(withdrawalRequests).set({ status, reviewedAt: new Date() }).where(eq(withdrawalRequests.id, id));
-  return { success: true } as const;
-}
-
-
-const DEFAULT_PROJECT_PROGRESS = { title: "Community project progress", description: "Follow the project's funding progress, practical milestones, and the people helping turn contributions into action.", imageUrl: null as string | null, targetAmountCents: 1000000, raisedAmountCents: 0, currencyCode: "USD", eyebrow: "项目透明度", sectionTitle: "社区项目进展", milestonesLabel: "阶段结果", milestonesTitle: "里程碑", peopleLabel: "人物", peopleTitle: "项目团队" };
+const DEFAULT_PROJECT_PROGRESS = { title: "Community project progress", description: "Follow the project's funding progress, practical milestones, and the people helping turn contributions into action.", imageUrl: null as string | null, targetAmountCents: 1000000, raisedAmountCents: 0, currencyCode: "USD", eyebrow: "Project Transparency", sectionTitle: "Community Project Progress", milestonesLabel: "Milestones", milestonesTitle: "Project Milestones", peopleLabel: "Team", peopleTitle: "Project Team" };
 
 export async function getProjectContent() {
   const db = await getDb();

@@ -93,7 +93,7 @@ export default function ProjectProgressManager() {
   const updateProject = trpc.admin.updateProjectProgress.useMutation({
     onSuccess: async () => {
       await refresh();
-      toast.success("Project progress saved and published");
+      toast.success("项目进度已保存并发布");
     },
     onError: (error) => toast.error(error.message),
   });
@@ -129,7 +129,7 @@ export default function ProjectProgressManager() {
     onSuccess: async () => {
       clearPersonForm();
       await refresh();
-      toast.success("People已添加");
+      toast.success("团队成员已添加");
     },
     onError: (error) => toast.error(error.message),
   });
@@ -138,7 +138,7 @@ export default function ProjectProgressManager() {
     onSuccess: async () => {
       clearPersonForm();
       await refresh();
-      toast.success("People资料已修改");
+      toast.success("团队成员资料已修改");
     },
     onError: (error) => toast.error(error.message),
   });
@@ -146,7 +146,7 @@ export default function ProjectProgressManager() {
   const deletePerson = trpc.admin.deleteProjectPerson.useMutation({
     onSuccess: async () => {
       await refresh();
-      toast.success("People已删除");
+      toast.success("团队成员已删除");
     },
     onError: (error) => toast.error(error.message),
   });
@@ -207,7 +207,7 @@ export default function ProjectProgressManager() {
 
   const submitProject = () => {
     if (!project.title.trim() || !project.description.trim()) {
-      toast.error("Please enter the project title and description");
+      toast.error("请输入项目标题和介绍");
       return;
     }
 
@@ -383,7 +383,7 @@ export default function ProjectProgressManager() {
 
                 <label className="admin-upload-button">
                   <ImagePlus size={16} />
-                  {projectImageUploading ? "Uploading…" : "选择Project image"}
+                  {projectImageUploading ? "上传中…" : "选择项目图片"}
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/gif"
@@ -474,7 +474,7 @@ export default function ProjectProgressManager() {
             onClick={submitProject}
           >
             <Save size={15} />
-            {updateProject.isPending ? "Saving…" : "保存Project basics"}
+            {updateProject.isPending ? "保存中…" : "保存项目设置"}
           </button>
         </div>
 
@@ -629,7 +629,7 @@ export default function ProjectProgressManager() {
                       onClick={() => {
                         if (
                           window.confirm(
-                            `确定删除People「${person.name}」吗？`,
+                            `确定删除团队成员「${person.name}」吗？`,
                           )
                         ) {
                           deletePerson.mutate({
@@ -645,7 +645,7 @@ export default function ProjectProgressManager() {
                 </div>
               ))
             ) : (
-              <span className="content-muted">暂未添加People。</span>
+              <span className="content-muted">暂未添加团队成员。</span>
             )}
           </div>
 
@@ -686,8 +686,8 @@ export default function ProjectProgressManager() {
               <label className="admin-upload-button">
                 <ImagePlus size={16} />
                 {uploadContentImageMutation.isPending
-                  ? "图片Uploading…"
-                  : "上传People照片"}
+                  ? "图片上传中…"
+                  : "上传团队照片"}
 
                 <input
                   type="file"
@@ -714,12 +714,12 @@ export default function ProjectProgressManager() {
                 {editingPersonId !== null ? (
                   <>
                     <Save size={15} />
-                    保存People修改
+                    保存团队成员资料
                   </>
                 ) : (
                   <>
                     <Plus size={15} />
-                    添加People
+                    添加团队成员
                   </>
                 )}
               </button>

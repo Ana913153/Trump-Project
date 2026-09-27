@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { hashPassword, normalizeIdentifier, validatePassword, verifyPassword } from "./auth";
-import { DEFAULT_ADMIN_PASSWORD, DEFAULT_ADMIN_USERNAME } from "./db";
+import { DEFAULT_ADMIN_USERNAME } from "./db";
 
 describe("local password authentication", () => {
-  it("uses the requested default admin credentials", () => {
+  it("keeps the administrator username while bootstrapping its password from the environment", () => {
     expect(DEFAULT_ADMIN_USERNAME).toBe("admin");
-    expect(DEFAULT_ADMIN_PASSWORD).toBe("Zz123123");
-    expect(validatePassword(DEFAULT_ADMIN_PASSWORD)).toBe(true);
+    expect(validatePassword("Aa123123")).toBe(true);
   });
 
   it("accepts the configured bootstrap password shape and verifies only its hash", () => {
