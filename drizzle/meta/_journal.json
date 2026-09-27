@@ -120,6 +120,13 @@
       "when": 1790523236626,
       "tag": "0016_remarkable_spitfire",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1790523730393,
+      "tag": "0017_add_locked_amount",
+      "breakpoints": true
     }
   ]
 }
