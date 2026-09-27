@@ -106,6 +106,20 @@
       "when": 1789729400108,
       "tag": "0014_wonderful_king_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1790519272886,
+      "tag": "0015_rare_goblin_queen",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1790523236626,
+      "tag": "0016_remarkable_spitfire",
+      "breakpoints": true
     }
   ]
 }
